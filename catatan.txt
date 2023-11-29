@@ -1,0 +1,10 @@
+        if not in_comment:
+            if '<table' in line:
+                if 'border=' not in line or '>' not in line:
+                     errors.append(f"Error: Missing attribute border or > '<table>' tag on line {i}")
+                stack.setdefault('table', []).append(('opening_table', i))
+            if '</table>' in line:
+                if 'table' not in stack or not stack['table']:
+                    errors.append(f"Error: Unclosed tag '<table>' on line {i}")
+                else:
+                    stack['table'].pop()
