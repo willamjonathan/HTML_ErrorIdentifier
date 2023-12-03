@@ -49,7 +49,7 @@ def  html_checker(file_path):
 
         
     def validate_tag(tag, line_number, column):
-        if tag.startswith("div "):
+        if tag.startswith("div class"):
             the_tag.append('div')
             return None
         if tag.startswith("!DOCTYPE html"):
