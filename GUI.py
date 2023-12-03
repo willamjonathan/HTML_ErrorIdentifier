@@ -51,8 +51,7 @@ def  html_checker(file_path):
         if tag.startswith("div class"):
             the_tag.append('div')
             return None
-        if tag.startswith("DOCTYPE html"):
-            the_tag.append("html")
+        if tag.startswith("!DOCTYPE html"):
             return None
         if tag.startswith("html lang"):
             the_tag.append("html")
