@@ -109,11 +109,23 @@ def  html_checker(file_path):
         current_tag = None
 
         for i, char in enumerate(line):
+            print("               ", i, char, in_comment)
             if in_comment:
-                if line.startswith('-->', i):
+                print(line, "TEST")
+                if char == '>':
+                    print("Going out the comment")
                     in_comment = False
+                    current_tag = None
 
             else:
+                if line.startswith('<!--'):
+                    print("Inside a comment")
+                    in_comment = True
+                    current_tag = None
+                if line.endswith('-->'):
+                    print("Inside a comment")
+                    in_comment = True
+                    current_tag = None
                 if char == '<':
                     current_tag = ''
                     # if current_tag.startswith('/'):
@@ -128,9 +140,7 @@ def  html_checker(file_path):
                         if error:
                             errors.append(error)
                     current_tag = None
-                elif char == '-':
-                    if line.startswith('<!--', i):
-                        in_comment = True
+                        
                 elif current_tag is not None:
                     current_tag += char
 
@@ -138,6 +148,7 @@ def  html_checker(file_path):
             errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
 
         if current_tag:
+            print(current_tag, "COBAAAAAAAA")
             if current_tag.startswith('/'):
                 current_tag = current_tag[1:]
                 
