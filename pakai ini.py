@@ -69,14 +69,25 @@ def  html_checker(file_path):
 
         elif tag.startswith('/'):
             closing_tag = tag[1:]  # Remove the '/' from the closing tag
+            opening_tag = tag[0:]
             the_closing.append(closing_tag)
             # print(the_closing)
 
             if not the_tag:
                 return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
-            opening_tag = the_tag.pop()  # Get the last opening tag
+        # Check if the closing tag matches the last opening tag
+            last_opening_tag = the_tag[-1]
+            if closing_tag == last_opening_tag:
+                opening_tag = the_tag.pop()  # Get the last opening tag
+            else:
+                return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+
+
+            print(opening_tag)
             print("Closing tag", the_closing)
+            print(closing_tag)
+            
             if opening_tag != closing_tag:
                 return f"Error: Mismatched closing tag '{opening_tag}' for opening tag '{opening_tag}', operation type: {tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
 
@@ -104,21 +115,27 @@ def  html_checker(file_path):
         current_tag = None
 
         for i, char in enumerate(line):
-            print("               ", i, char, in_comment)
+            # print("               ", i, char, in_comment)
             if in_comment:
                 print(line, "TEST")
                 if char == '>':
-                    print("Going out the comment")
+                    # print("Going out the comment")
                     in_comment = False
                     current_tag = None
+                if line.startswith('<!--'):
+                    print(len(line))
+                    if i == (len(line) - 1):
+                        # print("Going out the comment")
+                        in_comment = False
+                        current_tag = None
 
             else:
                 if line.startswith('<!--'):
-                    print("Inside a comment")
+                    # print("Inside a comment")
                     in_comment = True
                     current_tag = None
                 if line.endswith('-->'):
-                    print("Inside a comment")
+                    # print("Inside a comment")
                     in_comment = True
                     current_tag = None
                 if char == '<':
@@ -162,9 +179,6 @@ def  html_checker(file_path):
             if line:
                 errors.extend(process_line(line, line_number))
     
-    # Check for any remaining unclosed tags
-    # Check for any remaining unclosed tags
-# Check for any remaining unclosed tags
     unclosed_tags = set(the_tag) - set(the_closing)
     if unclosed_tags:
         errors.extend([f"Error: Unclosed tag '{tag}', line: {line_number}, operation type: {tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
