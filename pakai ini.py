@@ -13,6 +13,8 @@ def  html_checker(file_path):
         'h4': 'h4_tag',
         'a': 'a_tag',
         'li': 'list',
+        'footer': 'footer',
+        'ul':'unordered list',
         'header': 'header',
         'style': 'style',
         'ul': 'ul',
@@ -22,6 +24,8 @@ def  html_checker(file_path):
         'html': 'html_tag',
         'table': 'table_tag',
         '!DOCTYPE html': 'doctype_tag',
+        'div':'div_tag',
+        'href':'reference'
     }
 
     the_tag =[]
@@ -37,23 +41,28 @@ def  html_checker(file_path):
                 return False
 
         return True
-
-
         
     def validate_tag(tag, line_number, column):
+        if tag.startswith("div class"):
+            the_tag.append('div')
+            return None
         if tag.startswith("!DOCTYPE html"):
-            the_tag.append("html")
             return None
         if tag.startswith("html lang"):
             the_tag.append("html")
             return None
         if tag.startswith("meta charset"):
             return None
+        if tag.startswith("a href"):
+            the_tag.append("a")
+            return None
+        if tag.startswith("meta name"):
+            return None
 
         if not tag.startswith("/"):
             opening_tag = tag[0:]
             the_tag.append(opening_tag)
-            print(the_tag)
+            print("Opening tag:",the_tag)
 
             if opening_tag not in tag_mapping:
                 return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
@@ -61,18 +70,24 @@ def  html_checker(file_path):
         elif tag.startswith('/'):
             closing_tag = tag[1:]  # Remove the '/' from the closing tag
             the_closing.append(closing_tag)
-            print(the_closing)
+            # print(the_closing)
 
             if not the_tag:
                 return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
             opening_tag = the_tag.pop()  # Get the last opening tag
+            print("Closing tag", the_closing)
             if opening_tag != closing_tag:
                 return f"Error: Mismatched closing tag '{opening_tag}' for opening tag '{opening_tag}', operation type: {tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
 
         elif tag not in tag_mapping:
             if not validate_html_language(tag):
                 return f"Error: Invalid tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+
+        
+
+        # if len(the_tag) > len(the_closing):
+        #     return f"Error: Unclosed tag '{the_tag[-1]}', line: {line_number}"
 
         # # Check the last closing tag
         # if the_closing and not the_tag:
@@ -82,12 +97,6 @@ def  html_checker(file_path):
         return None
 
 
-
-    def validate_identifier(identifier, line_number, column):
-        if not is_valid_identifier(identifier):
-            return f"Error: Invalid identifier '{identifier}', line: {line_number}, column: {column}"
-        return None
-
     def process_line(line, line_number):
         errors = []
         tag = []
@@ -95,11 +104,23 @@ def  html_checker(file_path):
         current_tag = None
 
         for i, char in enumerate(line):
+            print("               ", i, char, in_comment)
             if in_comment:
-                if line.startswith('-->', i):
+                print(line, "TEST")
+                if char == '>':
+                    print("Going out the comment")
                     in_comment = False
+                    current_tag = None
 
             else:
+                if line.startswith('<!--'):
+                    print("Inside a comment")
+                    in_comment = True
+                    current_tag = None
+                if line.endswith('-->'):
+                    print("Inside a comment")
+                    in_comment = True
+                    current_tag = None
                 if char == '<':
                     current_tag = ''
                     # if current_tag.startswith('/'):
@@ -114,9 +135,7 @@ def  html_checker(file_path):
                         if error:
                             errors.append(error)
                     current_tag = None
-                elif char == '-':
-                    if line.startswith('<!--', i):
-                        in_comment = True
+                        
                 elif current_tag is not None:
                     current_tag += char
 
@@ -124,6 +143,7 @@ def  html_checker(file_path):
             errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
 
         if current_tag:
+            print(current_tag, "COBAAAAAAAA")
             if current_tag.startswith('/'):
                 current_tag = current_tag[1:]
                 
@@ -142,9 +162,16 @@ def  html_checker(file_path):
             if line:
                 errors.extend(process_line(line, line_number))
     
+    # Check for any remaining unclosed tags
+    # Check for any remaining unclosed tags
+# Check for any remaining unclosed tags
+    unclosed_tags = set(the_tag) - set(the_closing)
+    if unclosed_tags:
+        errors.extend([f"Error: Unclosed tag '{tag}', line: {line_number}, operation type: {tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
 
     return errors
+
 # Example usage:
-error_list = html_checker('ayam.html')
+error_list = html_checker('html-files/example.html')
 for error in error_list:
     print(error)
