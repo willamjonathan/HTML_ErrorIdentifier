@@ -86,7 +86,7 @@ def  html_checker(file_path):
             if closing_tag == last_opening_tag:
                 opening_tag = the_tag.pop()  # Get the last opening tag
             else:
-                return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+                return f"Error: Unmatched closing tag '{closing_tag}', operation type: {tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
 
 
             print(opening_tag)
