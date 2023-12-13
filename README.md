@@ -10,6 +10,10 @@ In the ever-changing world of web development, HTML stands as a foundational lan
 3. Wilbert Wirawan Ichwan 2501963186
 4. William Jonathan Mulyadi 2502045683
 
+# User Manual:
+Please run the GUI.py inside the main folder.
+The testing html_files folder can be used for html dummy to test this project!
+
 # Project report link:
 Link : ayam
 
