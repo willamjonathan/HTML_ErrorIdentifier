@@ -70,7 +70,7 @@ def  html_checker(file_path):
             print("Opening tag:",the_tag)
 
             if opening_tag not in tag_mapping:
-                return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+                return f"Error: Invalid tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
         elif tag.startswith('/'):
             closing_tag = tag[1:]  # Remove the '/' from the closing tag
