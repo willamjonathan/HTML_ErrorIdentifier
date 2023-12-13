@@ -12,6 +12,7 @@ In the ever-changing world of web development, HTML stands as a foundational lan
 
 # User Manual:
 Please run the GUI.py inside the main folder.
+
 The testing html_files folder can be used for html dummy to test this project!
 
 # Project report link:
