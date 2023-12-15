@@ -118,29 +118,41 @@ def  html_checker(file_path):
         tag = []
         in_comment = False
         current_tag = None
+        startComment = 0
+        endComment = 0
 
         for i, char in enumerate(line):
-            # print("               ", i, char, in_comment)
+            print("               ", i, char, in_comment)
             if in_comment:
                 print(line, "TEST")
                 if char == '>':
-                    # print("Going out the comment")
+                    print("Going out the comment")
                     in_comment = False
                     current_tag = None
                 if line.startswith('<!--'):
-                    print(len(line))
+                    # print(len(line))
                     if i == (len(line) - 1):
-                        # print("Going out the comment")
+                        print("Going out the comment")
                         in_comment = False
                         current_tag = None
+                if line.endswith('-->'):
+                    print("Line 139")
+                    in_comment = False
+                    current_tag = None
 
             else:
-                if line.startswith('<!--'):
-                    # print("Inside a comment")
+                if line.startswith('<!--') and line.endswith('-->'):
+                    print("Inside a 1 line comment")
+                    in_comment = True
+                    startComment = line_number
+                    current_tag = None
+                elif line.startswith('<!--') and not line.endswith('-->'):
+                    print("Line 150")
                     in_comment = True
                     current_tag = None
+                    break
                 if line.endswith('-->'):
-                    # print("Inside a comment")
+                    print("Line 155")
                     in_comment = True
                     current_tag = None
                 if char == '<':
