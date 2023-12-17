@@ -18,8 +18,9 @@ Class: L5AC
 3. The testing html_files folder can be used for html dummy to test this project!
 
 ## External Links ℹ️
-1. [Video demonstration]()
+1. [Video demonstration](https://youtu.be/ikeq7widqu4)
 2. [Final Project Report](https://docs.google.com/document/d/1i58wz9p-cLAbPCAVYsCHxMdDBTckfQmoZwGm1q6bMp0/edit?usp=sharing)
+3. [PowerPoint]()
 
 ## Important !
 Our program is limited to recognizing only the tags we've defined, implying that not all HTML language tags are included.
