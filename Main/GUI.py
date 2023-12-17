@@ -3,40 +3,43 @@ from tkinter import filedialog, messagebox
 import shutil
 import os
 
-def  html_checker(file_path):
-    tag_mapping = {
-        'head': 'head_tag',
-        'title': 'title_tag',
-        'body': 'body_tag',
-        'h1': 'h1_tag',
-        'tr': 'tr_tag',
-        'th': 'th_tag',
-        'td': 'td_tag',
-        'p': 'p_tag',
-        'h2': 'h2_tag',
-        'h3': 'h3_tag',
-        'h4': 'h4_tag',
-        'a': 'a_tag',
-        'li': 'list',
-        'footer': 'footer',
-        'ul':'unordered list',
-        'header': 'header',
-        'style': 'style',
-        'ul': 'ul',
-        'nav': 'navigation',
-        'section': 'section',
-        'meta charset="UTF8"':'UTF-8',
-        'html': 'html_tag',
-        'table': 'table_tag',
-        '!DOCTYPE html': 'doctype_tag',
-        'div':'div_tag',
-        'href':'reference'
-    }
+class HTMLChecker:
+    def __init__(self):
+        self.tag_mapping = {
+            'head': 'head_tag',
+            'title': 'title_tag',
+            'body': 'body_tag',
+            'h1': 'h1_tag',
+            'tr': 'tr_tag',
+            'th': 'th_tag',
+            'td': 'td_tag',
+            'p': 'p_tag',
+            'h2': 'h2_tag',
+            'h3': 'h3_tag',
+            'h4': 'h4_tag',
+            'a': 'a_tag',
+            'li': 'list',
+            'footer': 'footer',
+            'ul':'unordered list',
+            'header': 'header',
+            'style': 'style',
+            'ul': 'ul',
+            'nav': 'navigation',
+            'section': 'section',
+            'meta charset="UTF8"':'UTF-8',
+            'html': 'html_tag',
+            'table': 'table_tag',
+            '!DOCTYPE html': 'doctype_tag',
+            'div':'div_tag',
+            'href':'reference',
+            'img':'img_tag'
+        }
 
-    the_tag =[]
-    the_closing = []
+        self.the_tag =[]
+        self.the_closing = []
+        self.in_comment = False
     
-    def validate_html_language(line):
+    def validate_html_language(self, line):
         if 'html' in line.lower() and 'lang' in line.lower():
             start_index = line.lower().find('lang') + 5  # Adjusted the start index
             end_index = len(line) # Set end_index to the length of the line
@@ -47,58 +50,60 @@ def  html_checker(file_path):
 
         return True
         
-    def validate_tag(tag, line_number, column):
+    def validate_tag(self, tag, line_number, column):
         if tag.startswith("div class"):
-            the_tag.append('div')
+            self.the_tag.append('div')
             return None
         if tag.startswith("!DOCTYPE html"):
             return None
         if tag.startswith("html lang"):
-            the_tag.append("html")
+            self.the_tag.append("html")
             return None
         if tag.startswith("meta charset"):
             return None
         if tag.startswith("a href"):
-            the_tag.append("a")
+            self.the_tag.append("a")
             return None
         if tag.startswith("meta name"):
             return None
 
         if not tag.startswith("/"):
             opening_tag = tag[0:]
-            the_tag.append(opening_tag)
-            print("Opening tag:",the_tag)
+            if not opening_tag.startswith("img"):
+                self.the_tag.append(opening_tag)
+                print("Opening tag:",self.the_tag)
 
-            if opening_tag not in tag_mapping:
-                return f"Error: Invalid tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+                if opening_tag not in self.tag_mapping:
+                    return f"Error: Invalid tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+
 
         elif tag.startswith('/'):
             closing_tag = tag[1:]  # Remove the '/' from the closing tag
             opening_tag = tag[0:]
-            the_closing.append(closing_tag)
+            self.the_closing.append(closing_tag)
             # print(the_closing)
 
-            if not the_tag:
-                return f"Error: Unmatched closing tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+            if not self.the_tag:
+                return f"Error: Unmatched closing tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
         # Check if the closing tag matches the last opening tag
-            last_opening_tag = the_tag[-1]
+            last_opening_tag = self.the_tag[-1]
             if closing_tag == last_opening_tag:
-                opening_tag = the_tag.pop()  # Get the last opening tag
+                opening_tag = self.the_tag.pop()  # Get the last opening tag
             else:
-                return f"Error: Unmatched closing tag '{closing_tag}', operation type: {tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
+                return f"Error: Unmatched closing tag '{closing_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
 
 
             print(opening_tag)
-            print("Closing tag", the_closing)
+            print("Closing tag", self.the_closing)
             print(closing_tag)
             
             if opening_tag != closing_tag:
-                return f"Error: Mismatched closing tag '{opening_tag}' for opening tag '{opening_tag}', operation type: {tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
+                return f"Error: Mismatched closing tag '{opening_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
 
-        elif tag not in tag_mapping:
-            if not validate_html_language(tag):
-                return f"Error: Invalid tag '{tag}', operation type: {tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
+        elif tag not in self.tag_mapping:
+            if not self.validate_html_language(tag):
+                return f"Error: Invalid tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
         
 
@@ -112,48 +117,37 @@ def  html_checker(file_path):
 
         return None
 
-
-    def process_line(line, line_number):
+    def process_line(self, line, line_number):
         errors = []
-        tag = []
-        in_comment = False
         current_tag = None
-        startComment = 0
-        endComment = 0
 
         for i, char in enumerate(line):
-            print("               ", i, char, in_comment)
-            if in_comment:
+            print("               ", i, char, self.in_comment)
+            if self.in_comment:
                 print(line, "TEST")
-                if char == '>':
-                    print("Going out the comment")
-                    in_comment = False
-                    current_tag = None
-                if line.startswith('<!--'):
-                    # print(len(line))
-                    if i == (len(line) - 1):
-                        print("Going out the comment")
-                        in_comment = False
-                        current_tag = None
                 if line.endswith('-->'):
-                    print("Line 139")
-                    in_comment = False
+                    print("Line 128")
+                    self.in_comment = False
                     current_tag = None
+                    # endComment = line_number
+                    break
+                else:
+                    break
 
             else:
                 if line.startswith('<!--') and line.endswith('-->'):
                     print("Inside a 1 line comment")
-                    in_comment = True
-                    startComment = line_number
+                    self.in_comment = True
+                    # startComment = line_number
                     current_tag = None
                 elif line.startswith('<!--') and not line.endswith('-->'):
-                    print("Line 150")
-                    in_comment = True
+                    print("Line 142")
+                    self.in_comment = True
                     current_tag = None
                     break
                 if line.endswith('-->'):
-                    print("Line 155")
-                    in_comment = True
+                    print("Line 147")
+                    self.in_comment = True
                     current_tag = None
                 if char == '<':
                     current_tag = ''
@@ -164,7 +158,7 @@ def  html_checker(file_path):
                 elif char == '>':
                     if current_tag and not current_tag.endswith('/'):
                         # print (current_tag)
-                        error = validate_tag(current_tag, line_number, i + 1 - len(current_tag))
+                        error = self.validate_tag(current_tag, line_number, i + 1 - len(current_tag))
                         # print(error)
                         if error:
                             errors.append(error)
@@ -173,34 +167,35 @@ def  html_checker(file_path):
                 elif current_tag is not None:
                     current_tag += char
 
-        if in_comment:
-            errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
+        # if in_comment and (line_number not in range(startComment, endComment)):
+        #     errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
 
         if current_tag:
             print(current_tag, "COBAAAAAAAA")
             if current_tag.startswith('/'):
                 current_tag = current_tag[1:]
                 
-                errors.append(f"Error: Missing closing '>' , operation type: {tag_mapping.get(current_tag, 'unknown')}, line: {line_number}")
+                errors.append(f"Error: Missing closing '>' , operation type: {self.tag_mapping.get(current_tag, 'unknown')}, line: {line_number}")
             else:
-                errors.append(f"Error: Missing closing '>' , operation type: {tag_mapping.get(current_tag, 'unknown')}, line: {line_number}")
+                errors.append(f"Error: Missing closing '>' , operation type: {self.tag_mapping.get(current_tag, 'unknown')}, line: {line_number}")
 
         return errors
 
-    errors = []
-    with open(file_path, 'r') as file:
-        line_number = 0
-        for line in file:
-            line_number += 1
-            line = line.strip()
-            if line:
-                errors.extend(process_line(line, line_number))
+    def html_checker(self, file_path):
+        errors = []
+        with open(file_path, 'r') as file:
+            line_number = 0
+            for line in file:
+                line_number += 1
+                line = line.strip()
+                if line:
+                    errors.extend(self.process_line(line, line_number))
     
-    unclosed_tags = set(the_tag) - set(the_closing)
-    if unclosed_tags:
-        errors.extend([f"Error: Unclosed tag '{tag}', line: {line_number}, operation type: {tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
+        unclosed_tags = set(self.the_tag) - set(self.the_closing)
+        if unclosed_tags:
+            errors.extend([f"Error: Unclosed tag '{tag}', line: {line_number}, operation type: {self.tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
 
-    return errors
+        return errors
 
 class HTMLUploader:
     def __init__(self, root):
@@ -275,7 +270,7 @@ class HTMLUploader:
             return
 
         try:
-            errors = html_checker(self.file_path)
+            errors = HTMLChecker().html_checker(self.file_path)
 
             if not errors:
                 tk.messagebox.showinfo("Validation", "HTML is valid.")
