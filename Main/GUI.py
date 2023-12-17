@@ -94,31 +94,30 @@ class HTMLChecker:
                 closing_tag = self.the_closing.pop()
                 print(f"POPPED {opening_tag} BECAUSE closing_tag == last_opening_tag ")
             else:
-                print("IM HERE")
+                # print("IM HERE")
                 found_match = False
                 for i in self.the_tag[::-1]:
                     if i == closing_tag:
                         # opening_tag = self.the_tag.remove(i)
-                        print("IM HERE 2")
+                        # print("IM HERE 2")
                         found_match = True
                         break
 
                 if not found_match:
                     if closing_tag not in self.the_tag:
-                        print(f"BEEBOOP!!!!!!!!!!!!! {opening_tag} not found_match ")
-                        closing_tag = self.the_closing.pop()
+                        # print(f"BEEBOOP!!!!!!!!!!!!! {opening_tag} not found_match ")
                         return f"Error: No opening tag for closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
                     else:
-                        print("IM HERE 3")
+                        # print("IM HERE 3")
                         opening_tag = self.the_tag.pop()
                         closing_tag = self.the_closing.pop()
-                        print(f"POPPED {opening_tag} BECAUSE not found_match ")
+                        # print(f"POPPED {opening_tag} BECAUSE not found_match ")
                         return f"Error: Unclosed closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
                     
-            print("Opening tag", self.the_tag)
-            print(opening_tag)
-            print("Closing tag", self.the_closing)
-            print(closing_tag)
+            # print("Opening tag", self.the_tag)
+            # print(opening_tag)
+            # print("Closing tag", self.the_closing)
+            # print(closing_tag)
             
             if opening_tag != closing_tag :
                 return f"Error: Mismatched closing tag '{closing_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
@@ -141,11 +140,11 @@ class HTMLChecker:
         current_tag = None
 
         for i, char in enumerate(line):
-            print("               ", i, char, self.in_comment)
+            # print("               ", i, char, self.in_comment)
             if self.in_comment:
-                print(line, "TEST")
+                # print(line, "TEST")
                 if line.endswith('-->'):
-                    print("Line 128")
+                    # print("Line 128")
                     self.in_comment = False
                     current_tag = None
                     # endComment = line_number
@@ -155,17 +154,17 @@ class HTMLChecker:
 
             else:
                 if line.startswith('<!--') and line.endswith('-->'):
-                    print("Inside a 1 line comment")
+                    # print("Inside a 1 line comment")
                     self.in_comment = True
                     # startComment = line_number
                     current_tag = None
                 elif line.startswith('<!--') and not line.endswith('-->'):
-                    print("Line 142")
+                    # print("Line 142")
                     self.in_comment = True
                     current_tag = None
                     break
                 if line.endswith('-->'):
-                    print("Line 147")
+                    # print("Line 147")
                     self.in_comment = True
                     current_tag = None
                 if char == '<':
@@ -190,7 +189,7 @@ class HTMLChecker:
         #     errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
 
         if current_tag:
-            print(current_tag, "COBAAAAAAAA")
+            # print(current_tag, "COBAAAAAAAA")
             if current_tag.startswith('/'):
                 current_tag = current_tag[1:]
                 
@@ -206,7 +205,7 @@ class HTMLChecker:
             max_line_number = 0
             for i in file:
                 max_line_number += 1
-                print(max_line_number)
+                # print(max_line_number)
     
         with open(file_path, 'r') as file:
             max_line_number = 0
