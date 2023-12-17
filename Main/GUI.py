@@ -42,8 +42,8 @@ class HTMLChecker:
     
     def validate_html_language(self, line):
         if 'html' in line.lower() and 'lang' in line.lower():
-            start_index = line.lower().find('lang') + 5  # Adjusted the start index
-            end_index = len(line) # Set end_index to the length of the line
+            start_index = line.lower().find('lang') + 5 
+            end_index = len(line) 
             language_value = line[start_index:end_index].strip()
             
             if len(language_value) != 4:
@@ -231,7 +231,7 @@ class HTMLUploader:
         self.create_ui()
 
     def create_ui(self):
-        self.root.columnconfigure(0, weight=1)  # Column 0 takes the whole width
+        self.root.columnconfigure(0, weight=1)
 
         top_buttons_frame = tk.Frame(self.root, background="#e6e6e6")
         top_buttons_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -242,11 +242,9 @@ class HTMLUploader:
         self.upload_button = tk.Button(top_buttons_frame, text="Upload File", command=self.upload_file)
         self.upload_button.grid(row=0, column=1, padx=5)
 
-        self.save_button = tk.Button(top_buttons_frame, text="Save File", command=self.save_file)
-        self.save_button.grid(row=0, column=2, padx=5)
-
         self.html_text = tk.Text(self.root, height=10, width=80)
         self.html_text.grid(row=1, column=0, padx=10, sticky="nsew")
+        self.html_text.config(state="normal")
 
         self.validate_button = tk.Button(self.root, text="Validate HTML", command=self.validate_html)
         self.validate_button.grid(row=2, column=0, pady=10)
@@ -257,12 +255,12 @@ class HTMLUploader:
 
         self.error_text = tk.Text(self.root, height=15, width=80)
         self.error_text.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+        self.error_text.config(state="normal")
 
         scrollbar_error = tk.Scrollbar(self.root, command=self.error_text.yview)
         scrollbar_error.grid(row=3, column=1, sticky="ns")
         self.error_text.config(yscrollcommand=scrollbar_error.set)
 
-        # Make rows and columns expandable
         self.root.rowconfigure(1, weight=1)
         self.root.rowconfigure(3, weight=1)
         self.root.columnconfigure(0, weight=1)
@@ -292,7 +290,7 @@ class HTMLUploader:
                 tk.messagebox.showinfo("Validation", "HTML is valid.")
             else:
                 error_message = "\n".join(errors)
-                self.error_text.delete(1.0, tk.END)  # Clear previous errors
+                self.error_text.delete(1.0, tk.END)
                 self.error_text.insert(tk.END, error_message)
                 tk.messagebox.showerror("Validation", "HTML is not valid. See errors below.")
 
@@ -300,17 +298,6 @@ class HTMLUploader:
             tk.messagebox.showerror("Error", f"File '{self.file_path}' not found.")
         except Exception as e:
             tk.messagebox.showerror("Error", f"Error: {str(e)}")
-    def save_file(self):
-        if not self.file_path:
-            tk.messagebox.showwarning("Warning", "Please select an HTML file first.")
-            return
-
-        save_directory = "HTML_FILES"
-
-        new_file_path = os.path.join(save_directory, os.path.basename(self.file_path))
-        shutil.copy(self.file_path, new_file_path)
-
-        tk.messagebox.showinfo("Success", "HTML file saved successfully.")
 
 if __name__ == "__main__":
     root = tk.Tk()
