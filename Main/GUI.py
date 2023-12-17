@@ -38,11 +38,12 @@ class HTMLChecker:
         self.the_tag =[]
         self.the_closing = []
         self.in_comment = False
+        self.msg = None
     
     def validate_html_language(self, line):
         if 'html' in line.lower() and 'lang' in line.lower():
-            start_index = line.lower().find('lang') + 5  # Adjusted the start index
-            end_index = len(line) # Set end_index to the length of the line
+            start_index = line.lower().find('lang') + 5 
+            end_index = len(line) 
             language_value = line[start_index:end_index].strip()
             
             if len(language_value) != 4:
@@ -50,7 +51,7 @@ class HTMLChecker:
 
         return True
         
-    def validate_tag(self, tag, line_number, column):
+    def validate_tag(self, tag, line_number, column, max_line_number):
         if tag.startswith("div class"):
             self.the_tag.append('div')
             return None
@@ -77,56 +78,73 @@ class HTMLChecker:
                     return f"Error: Invalid tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
 
 
-        elif tag.startswith('/'):
+        if tag.startswith('/'):
             closing_tag = tag[1:]  # Remove the '/' from the closing tag
-            opening_tag = tag[0:]
+            opening_tag = tag[1:]
             self.the_closing.append(closing_tag)
             # print(the_closing)
 
             if not self.the_tag:
                 return f"Error: Unmatched closing tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
-
+        
         # Check if the closing tag matches the last opening tag
             last_opening_tag = self.the_tag[-1]
             if closing_tag == last_opening_tag:
                 opening_tag = self.the_tag.pop()  # Get the last opening tag
+                closing_tag = self.the_closing.pop()
+                print(f"POPPED {opening_tag} BECAUSE closing_tag == last_opening_tag ")
             else:
-                return f"Error: Unmatched closing tag '{closing_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
+                # print("IM HERE")
+                found_match = False
+                for i in self.the_tag[::-1]:
+                    if i == closing_tag:
+                        # opening_tag = self.the_tag.remove(i)
+                        # print("IM HERE 2")
+                        found_match = True
+                        break
 
-
-            print(opening_tag)
-            print("Closing tag", self.the_closing)
-            print(closing_tag)
+                if not found_match:
+                    if closing_tag not in self.the_tag:
+                        # print(f"BEEBOOP!!!!!!!!!!!!! {opening_tag} not found_match ")
+                        return f"Error: No opening tag for closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
+                    else:
+                        # print("IM HERE 3")
+                        opening_tag = self.the_tag.pop()
+                        closing_tag = self.the_closing.pop()
+                        # print(f"POPPED {opening_tag} BECAUSE not found_match ")
+                        return f"Error: Unclosed closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
+                    
+            # print("Opening tag", self.the_tag)
+            # print(opening_tag)
+            # print("Closing tag", self.the_closing)
+            # print(closing_tag)
             
-            if opening_tag != closing_tag:
-                return f"Error: Mismatched closing tag '{opening_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
+            if opening_tag != closing_tag :
+                return f"Error: Mismatched closing tag '{closing_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
 
         elif tag not in self.tag_mapping:
             if not self.validate_html_language(tag):
                 return f"Error: Invalid tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
-
         
-
-        # if len(the_tag) > len(the_closing):
-        #     return f"Error: Unclosed tag '{the_tag[-1]}', line: {line_number}"
-
-        # # Check the last closing tag
-        # if the_closing and not the_tag:
-        #     last_closing_tag = the_closing[-1]
-        #     return f"Warning: Last closing tag '{last_closing_tag}' does not have a corresponding opening tag, line: {line_number}, column: {column}"
+        if line_number == max_line_number:
+            for i in self.the_tag:
+                for j in self.the_closing:
+                    if i not in self.the_closing:
+                        return f"Error: No closing tag '{closing_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
 
         return None
 
-    def process_line(self, line, line_number):
+
+    def process_line(self, line, line_number, max_line_number):
         errors = []
         current_tag = None
 
         for i, char in enumerate(line):
-            print("               ", i, char, self.in_comment)
+            # print("               ", i, char, self.in_comment)
             if self.in_comment:
-                print(line, "TEST")
+                # print(line, "TEST")
                 if line.endswith('-->'):
-                    print("Line 128")
+                    # print("Line 128")
                     self.in_comment = False
                     current_tag = None
                     # endComment = line_number
@@ -136,17 +154,17 @@ class HTMLChecker:
 
             else:
                 if line.startswith('<!--') and line.endswith('-->'):
-                    print("Inside a 1 line comment")
+                    # print("Inside a 1 line comment")
                     self.in_comment = True
                     # startComment = line_number
                     current_tag = None
                 elif line.startswith('<!--') and not line.endswith('-->'):
-                    print("Line 142")
+                    # print("Line 142")
                     self.in_comment = True
                     current_tag = None
                     break
                 if line.endswith('-->'):
-                    print("Line 147")
+                    # print("Line 147")
                     self.in_comment = True
                     current_tag = None
                 if char == '<':
@@ -158,7 +176,7 @@ class HTMLChecker:
                 elif char == '>':
                     if current_tag and not current_tag.endswith('/'):
                         # print (current_tag)
-                        error = self.validate_tag(current_tag, line_number, i + 1 - len(current_tag))
+                        error = self.validate_tag(current_tag, line_number, i + 1 - len(current_tag), max_line_number)
                         # print(error)
                         if error:
                             errors.append(error)
@@ -171,7 +189,7 @@ class HTMLChecker:
         #     errors.append(f"Error: Unclosed multi-line comment in line {line_number}")
 
         if current_tag:
-            print(current_tag, "COBAAAAAAAA")
+            # print(current_tag, "COBAAAAAAAA")
             if current_tag.startswith('/'):
                 current_tag = current_tag[1:]
                 
@@ -184,16 +202,24 @@ class HTMLChecker:
     def html_checker(self, file_path):
         errors = []
         with open(file_path, 'r') as file:
-            line_number = 0
+            max_line_number = 0
+            for i in file:
+                max_line_number += 1
+                # print(max_line_number)
+    
+        with open(file_path, 'r') as file:
+            max_line_number = 0
+            current_line = 0
             for line in file:
-                line_number += 1
+                current_line += 1
                 line = line.strip()
                 if line:
-                    errors.extend(self.process_line(line, line_number))
+                    errors.extend(self.process_line(line, current_line, max_line_number))
+        
     
         unclosed_tags = set(self.the_tag) - set(self.the_closing)
         if unclosed_tags:
-            errors.extend([f"Error: Unclosed tag '{tag}', line: {line_number}, operation type: {self.tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
+            errors.extend([f"Error: Unclosed tag '{tag}', line: {current_line}, operation type: {self.tag_mapping.get(tag, 'unknown')}" for tag in unclosed_tags])
 
         return errors
 
@@ -202,54 +228,42 @@ class HTMLUploader:
         self.root = root
         self.root.title("HTML File Uploader")
 
-        window_width = 800
-        window_height = 600
-
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-
-        x_position = (screen_width - window_width) // 2
-        y_position = (screen_height - window_height) // 2
-
-        self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-
-        self.file_path = ""
-
         self.create_ui()
 
     def create_ui(self):
+        self.root.columnconfigure(0, weight=1)
 
+        top_buttons_frame = tk.Frame(self.root, background="#e6e6e6")
+        top_buttons_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        top_buttons_frame = tk.Frame(self.root)
-        top_buttons_frame.pack(side=tk.TOP, padx=10, pady=10)
-
-        self.label = tk.Label(top_buttons_frame, text="Select HTML File:", background="#e6e6e6", padx=10, pady=5)
-        self.label.pack(side=tk.LEFT, fill=tk.X, pady=10) 
+        self.label = tk.Label(top_buttons_frame, text="Select HTML File:", padx=10, pady=5)
+        self.label.grid(row=0, column=0, sticky="w")
 
         self.upload_button = tk.Button(top_buttons_frame, text="Upload File", command=self.upload_file)
-        self.upload_button.pack(side=tk.LEFT, padx=5)  
+        self.upload_button.grid(row=0, column=1, padx=5)
 
-        self.save_button = tk.Button(top_buttons_frame, text="Save File", command=self.save_file)
-        self.save_button.pack(side=tk.LEFT, padx=5) 
-
-
-        self.html_text = tk.Text(self.root, height=10, width=80)  
-        self.html_text.pack(pady=10, padx=10)
+        self.html_text = tk.Text(self.root, height=10, width=80)
+        self.html_text.grid(row=1, column=0, padx=10, sticky="nsew")
+        self.html_text.config(state="normal")
 
         self.validate_button = tk.Button(self.root, text="Validate HTML", command=self.validate_html)
-        self.validate_button.pack(pady=10)
-
+        self.validate_button.grid(row=2, column=0, pady=10)
 
         scrollbar = tk.Scrollbar(self.root, command=self.html_text.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.grid(row=1, column=1, sticky="ns")
         self.html_text.config(yscrollcommand=scrollbar.set)
 
-        self.error_text = tk.Text(self.root, height=15, width=80)  
-        self.error_text.pack(pady=10, padx=10)
+        self.error_text = tk.Text(self.root, height=15, width=80)
+        self.error_text.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+        self.error_text.config(state="normal")
 
         scrollbar_error = tk.Scrollbar(self.root, command=self.error_text.yview)
-        scrollbar_error.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar_error.grid(row=3, column=1, sticky="ns")
         self.error_text.config(yscrollcommand=scrollbar_error.set)
+
+        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(3, weight=1)
+        self.root.columnconfigure(0, weight=1)
 
     def upload_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("HTML Files", "*.html")])
@@ -276,7 +290,7 @@ class HTMLUploader:
                 tk.messagebox.showinfo("Validation", "HTML is valid.")
             else:
                 error_message = "\n".join(errors)
-                self.error_text.delete(1.0, tk.END)  # Clear previous errors
+                self.error_text.delete(1.0, tk.END)
                 self.error_text.insert(tk.END, error_message)
                 tk.messagebox.showerror("Validation", "HTML is not valid. See errors below.")
 
@@ -284,17 +298,6 @@ class HTMLUploader:
             tk.messagebox.showerror("Error", f"File '{self.file_path}' not found.")
         except Exception as e:
             tk.messagebox.showerror("Error", f"Error: {str(e)}")
-    def save_file(self):
-        if not self.file_path:
-            tk.messagebox.showwarning("Warning", "Please select an HTML file first.")
-            return
-
-        save_directory = "HTML_FILES"
-
-        new_file_path = os.path.join(save_directory, os.path.basename(self.file_path))
-        shutil.copy(self.file_path, new_file_path)
-
-        tk.messagebox.showinfo("Success", "HTML file saved successfully.")
 
 if __name__ == "__main__":
     root = tk.Tk()
