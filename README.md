@@ -23,5 +23,4 @@ Class: L5AC
 
 ## Important !
 Our program is limited to recognizing only the tags we've defined, implying that not all HTML language tags are included.
-<t>![image](https://github.com/willamjonathan/HTML_ErrorIdentifier/assets/91537837/6a1eb236-cc89-44ff-a006-e71830c8ddd2)
 
