@@ -11,10 +11,11 @@ Class: L5AC
 3. Wilbert Wirawan Ichwan 2501963186
 4. William Jonathan Mulyadi 2502045683
 
-## Repo Directory 🧭
-Please run the GUI.py inside the main folder.
-
-The testing html_files folder can be used for html dummy to test this project!
+## Manuals 🧭
+1. Please run the GUI.py inside the main folder.
+   * Upload the html file
+   * Click validate html button
+3. The testing html_files folder can be used for html dummy to test this project!
 
 ## External Links ℹ️
 1. [Video demonstration]()
