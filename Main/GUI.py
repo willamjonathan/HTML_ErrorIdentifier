@@ -79,7 +79,7 @@ class HTMLChecker:
 
 
         if tag.startswith('/'):
-            closing_tag = tag[1:]  # Remove the '/' from the closing tag
+            closing_tag = tag[1:]
             opening_tag = tag[1:]
             self.the_closing.append(closing_tag)
             # print(the_closing)
@@ -87,10 +87,9 @@ class HTMLChecker:
             if not self.the_tag:
                 return f"Error: Unmatched closing tag '{tag}', operation type: {self.tag_mapping.get(tag, 'unknown')}, line: {line_number}, column: {column}"
         
-        # Check if the closing tag matches the last opening tag
             last_opening_tag = self.the_tag[-1]
             if closing_tag == last_opening_tag:
-                opening_tag = self.the_tag.pop()  # Get the last opening tag
+                opening_tag = self.the_tag.pop() 
                 closing_tag = self.the_closing.pop()
                 print(f"POPPED {opening_tag} BECAUSE closing_tag == last_opening_tag ")
             else:
@@ -106,12 +105,13 @@ class HTMLChecker:
                 if not found_match:
                     if closing_tag not in self.the_tag:
                         # print(f"BEEBOOP!!!!!!!!!!!!! {opening_tag} not found_match ")
+                        closing_tag = self.the_closing.pop()
                         return f"Error: No opening tag for closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
                     else:
                         # print("IM HERE 3")
                         opening_tag = self.the_tag.pop()
                         closing_tag = self.the_closing.pop()
-                        # print(f"POPPED {opening_tag} BECAUSE not found_match ")
+                        print(f"POPPED {opening_tag} BECAUSE not found_match ")
                         return f"Error: Unclosed closing tag '{opening_tag}', operation type: {self.tag_mapping.get(closing_tag, 'unknown')}, line: {line_number}, column: {column}"
                     
             # print("Opening tag", self.the_tag)
@@ -130,7 +130,11 @@ class HTMLChecker:
             for i in self.the_tag:
                 for j in self.the_closing:
                     if i not in self.the_closing:
-                        return f"Error: No closing tag '{closing_tag}' for opening tag '{opening_tag}', operation type: {self.tag_mapping.get(opening_tag, 'unknown')}, line: {line_number}, column: {column}"
+                        # print(f"YES3 {i} AND {self.the_closing}")
+                        self.the_tag.remove(i)
+                        return f"Error: No closing tag '{i}' for opening tag '{i}', operation type: {self.tag_mapping.get(i, 'unknown')}, line: {line_number}, column: {column}"
+                    else:
+                        pass
 
         return None
 
@@ -205,9 +209,10 @@ class HTMLChecker:
             max_line_number = 0
             for i in file:
                 max_line_number += 1
-                # print(max_line_number)
-    
+
+        # print(max_line_number)
         with open(file_path, 'r') as file:
+            # max_line_number = 0
             current_line = 0
             for line in file:
                 current_line += 1
