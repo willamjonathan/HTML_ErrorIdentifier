@@ -208,7 +208,6 @@ class HTMLChecker:
                 # print(max_line_number)
     
         with open(file_path, 'r') as file:
-            max_line_number = 0
             current_line = 0
             for line in file:
                 current_line += 1
@@ -287,6 +286,7 @@ class HTMLUploader:
             errors = HTMLChecker().html_checker(self.file_path)
 
             if not errors:
+                self.error_text.delete(1.0, tk.END)
                 tk.messagebox.showinfo("Validation", "HTML is valid.")
             else:
                 error_message = "\n".join(errors)
