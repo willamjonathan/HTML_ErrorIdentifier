@@ -1,4 +1,4 @@
-![image](https://github.com/willamjonathan/HTML_ErrorIdentifier/assets/91537837/327c8045-c603-4297-98a1-d74f11439f42)# HTML_ErrorIdentifier
+# HTML_ErrorIdentifier
 
 # Background
 Web development involves creating and maintaining websites or web applications, covering tasks like design, coding, and scripting. It's a dynamic field, utilizing languages such as HTML, CSS, and JavaScript for front-end development, and server-side scripting languages like Python or PHP for back-end tasks.
