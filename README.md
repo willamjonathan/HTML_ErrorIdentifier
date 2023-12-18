@@ -20,7 +20,7 @@ Class: L5AC
 ## External Links ℹ️
 1. [Video demonstration](https://youtu.be/ikeq7widqu4)
 2. [Final Project Report](https://docs.google.com/document/d/1i58wz9p-cLAbPCAVYsCHxMdDBTckfQmoZwGm1q6bMp0/edit?usp=sharing)
-3. [PowerPoint]()
+3. [PowerPoint](https://www.canva.com/design/DAF1-V4B2Cw/7IFWIayV13cEYfeMrUgzVg/edit?utm_content=DAF1-V4B2Cw&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ## Important !
 Our program is limited to recognizing only the tags we've defined, implying that not all HTML language tags are included.
